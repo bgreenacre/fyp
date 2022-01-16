@@ -50,6 +50,7 @@
     .products-item h3 {
       font-weight: 400;
       color: #343a40;
+      margin-bottom: 0.25rem;
     }
     .products-item-price {
       width: 100%;
@@ -185,6 +186,7 @@
           .then(items => {
             // Sort the items by the `cat` property
             this.items = items.sort((current, next) => current.cat < next.cat ? -1 : 1);
+            this.$list.innerHTML = '';
 
             // Render each item in the array
             this.items.forEach(item => this.renderItem(item));
