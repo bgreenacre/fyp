@@ -18,7 +18,6 @@
   <link rel="icon" href="favicon.ico">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic">
   <link rel="stylesheet" href="https://necolas.github.io/normalize.css/latest/normalize.css">
   <style>
     body {
@@ -35,16 +34,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 1rem;
+    }
+    .products-header {
+      font-weight: 400;
+      color: #0d6efd;
     }
     .products-list {
       margin: 0;
       padding: 0;
       list-style: none;
     }
+    .products-item h3 {
+      font-weight: 400;
+      color: #343a40;
+    }
+    .products-item-price {
+      width: 100%;
+      text-align: right;
+    }
+    .products-item-saleprice {
+      color: #dc3545;
+      font-size: 1.5rem;
+    }
     .products-category {
       text-transform: uppercase;
+      color: #0dcaf0;
+    }
+    .products-category h2 {
+      font-weight: 400;
     }
     .products-category:not(:first-child) {
+      margin-top: 0.25rem;
       padding: 0.5rem 0 0;
       border-top: 1px solid #6c757d;
     }
@@ -57,10 +78,6 @@
       jsonFileUrl = 'https://neodigm.github.io/FED_Programming_Challenge/products.json';
       items = [];
       currentCategory = null;
-
-      constructor() {
-        super();
-      }
 
       connectedCallback() {
         this.innerHTML = this.render();
@@ -79,7 +96,8 @@
       render() {
         return `
         <section>
-          <h1>Products For Sale</h1>
+          <h1 class="products-header">Products For Sale</h1>
+          <hr />
           <ul class="products-list">
             ${this.loadingItemsMessage}
           </ul>
@@ -89,10 +107,10 @@
 
       renderItem(item) {
         let renderedItem = `
-        <li>
+        <li class="products-item">
           <h3>${item.product}</h3>
           <div class="products-item-price">
-            $${item.price}
+            ${item.sale ? `<s>$${item.price}</s> <span class="products-item-saleprice">$${item.sale}</span>` : '$'+item.price}
           </div>
         </li>
         `;
