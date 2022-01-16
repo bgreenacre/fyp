@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>FE Demo - FYP</title>
-  <base href="https://bgreenacre.github.io/fyp/">
+  <!-- <base href="https://bgreenacre.github.io/fyp/"> -->
   <meta name="description" content="A demo frontend project for your party.">
   <meta name="author" content="Brian Greenacre">
 
@@ -18,10 +18,125 @@
   <link rel="icon" href="favicon.ico">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link href="//fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic">
+  <link rel="stylesheet" href="https://necolas.github.io/normalize.css/latest/normalize.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+      font-size: 1rem;
+      font-weight: 400;
+      color: #212529;
+      background-color: #fff;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .products-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .products-category {
+      text-transform: uppercase;
+    }
+    .products-category:not(:first-child) {
+      padding: 0.5rem 0 0;
+      border-top: 1px solid #6c757d;
+    }
+  </style>
+  <script type="text/javascript">
+    'use strict';
+
+    class ItemsList extends HTMLElement {
+      loadingItemsMessage = '<li>Loading Items...</li>';
+      jsonFileUrl = 'https://neodigm.github.io/FED_Programming_Challenge/products.json';
+      items = [];
+      currentCategory = null;
+
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.innerHTML = this.render();
+
+        this.$list = document.querySelector('.products-list');
+
+        this.fetchItems();
+      }
+
+      cleanList() {
+        while (this.$list.firstChild) {
+          this.$list.removeChild(this.$list.firstChild);
+        }
+      }
+
+      render() {
+        return `
+        <section>
+          <h1>Products For Sale</h1>
+          <ul class="products-list">
+            ${this.loadingItemsMessage}
+          </ul>
+        </section>
+        `;
+      }
+
+      renderItem(item) {
+        let renderedItem = `
+        <li>
+          <h3>${item.product}</h3>
+          <div class="products-item-price">
+            $${item.price}
+          </div>
+        </li>
+        `;
+
+        if ( ! this.currentCategory || this.currentCategory != item.cat) {
+          this.currentCategory = item.cat;
+
+          renderedItem = `<li class="products-category"><h2>${item.cat}</h2></li>` + renderedItem;
+        }
+
+        this.$list.insertAdjacentHTML('beforeend', renderedItem);
+      }
+
+      fetchItems() {
+        this.$list.innerHTML = this.loadingItemsMessage;
+
+        fetch(this.jsonFileUrl)
+          .then(response => response.json())
+          .then(items => {
+            this.cleanList();
+            this.items = items.sort((current, next) => current.cat < next.cat ? -1 : 1);
+
+            this.items.forEach(item => this.renderItem(item));
+          });
+      }
+
+      set jsonFileUrl(url) {
+        this.jsonFileUrl = url;
+      }
+
+      get jsonFileUrl() {
+        return this.jsonFileUrl;
+      }
+    }
+
+    customElements.define('items-list', ItemsList);
+  </script>
 </head>
 
 <body>
   <main>
+    <div class="container">
+      <items-list></items-list>
+    </div>
   </main>
 </body>
 </html>
