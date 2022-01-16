@@ -178,6 +178,8 @@
             if (! response.ok) {
               throw new Error('Could not fetch json file.');
             }
+
+            return response;
           })
           .then(response => response.json())
           .then(items => {
