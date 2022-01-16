@@ -45,6 +45,9 @@
       padding: 0;
       list-style: none;
     }
+    .products-list-error {
+      color: #dc3545;
+    }
     .products-item h3 {
       font-weight: 400;
       color: #343a40;
@@ -74,25 +77,55 @@
     'use strict';
 
     class ItemsList extends HTMLElement {
+      /**
+       * Message to show while fetching json file.
+       *
+       * @type String
+       */
       loadingItemsMessage = '<li>Loading Items...</li>';
+
+      /**
+       * URL to json file.
+       *
+       * @type String
+       */
       jsonFileUrl = 'https://neodigm.github.io/FED_Programming_Challenge/products.json';
+
+      /**
+       * Stores the items loaded from the json file.
+       *
+       * @type Array
+       */
       items = [];
+
+      /**
+       * Holds the category name of items while iterating over the array.
+       *
+       * @type String|null
+       */
       currentCategory = null;
 
+      /**
+       * Renders the items list
+       *
+       * @return void
+       */
       connectedCallback() {
+        // Set the ul's to some default template html
         this.innerHTML = this.render();
 
+        // This is the ul element that's been rendered into the document
         this.$list = document.querySelector('.products-list');
 
+        // Fetch the items and render them
         this.fetchItems();
       }
 
-      cleanList() {
-        while (this.$list.firstChild) {
-          this.$list.removeChild(this.$list.firstChild);
-        }
-      }
-
+      /**
+       * Renders the initial body
+       *
+       * @return String
+       */
       render() {
         return `
         <section>
@@ -105,6 +138,12 @@
         `;
       }
 
+      /**
+       * Takes an item object and renders html
+       *
+       * @param  Object item Product
+       * @return String
+       */
       renderItem(item) {
         let renderedItem = `
         <li class="products-item">
@@ -115,6 +154,7 @@
         </li>
         `;
 
+        // Add a li that shows the Category when it's changed.
         if ( ! this.currentCategory || this.currentCategory != item.cat) {
           this.currentCategory = item.cat;
 
@@ -124,28 +164,57 @@
         this.$list.insertAdjacentHTML('beforeend', renderedItem);
       }
 
+      /**
+       * Fetched items to display
+       *
+       * @return void
+       */
       fetchItems() {
+        // Clear out list element and show a loading message.
         this.$list.innerHTML = this.loadingItemsMessage;
 
         fetch(this.jsonFileUrl)
+          .then(response => {
+            // Throw an error if the response is NOT OK.
+            if (! response.ok) {
+              throw new Error('Could not fetch json file.');
+            }
+          })
           .then(response => response.json())
           .then(items => {
-            this.cleanList();
+            // Sort the items by the `cat` property
             this.items = items.sort((current, next) => current.cat < next.cat ? -1 : 1);
 
+            // Render each item in the array
             this.items.forEach(item => this.renderItem(item));
+          })
+          .catch(error => {
+            // Error occured so render the message
+            this.$list.innerHTML = `<li class="products-list-error">ERROR: ${error.toString()}</li>`;
           });
       }
 
+      /**
+       * Set the url to the json file of items.
+       *
+       * @param  String url Url to the json file
+       * @return void
+       */
       set jsonFileUrl(url) {
         this.jsonFileUrl = url;
       }
 
+      /**
+       * Get the json url
+       *
+       * @return String
+       */
       get jsonFileUrl() {
         return this.jsonFileUrl;
       }
     }
 
+    // Register custom element
     customElements.define('items-list', ItemsList);
   </script>
 </head>
